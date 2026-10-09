@@ -1,6 +1,6 @@
 # Project Status
 
-> **Status:** Foundation Phase (IN PROGRESS -- Documentation Published, Implementation Pending)
+> **Status:** Foundation Phase Complete (Phase 0 Published); Phase 1 In Progress (Reference Baseline Assessment)
 
 ## Component Assessment
 
@@ -9,69 +9,125 @@ Each existing component is assessed against the following statuses:
 VERIFIED_WORKING, PARTIALLY_VERIFIED, CONFIGURED_UNVERIFIED, FAILED,
 NOT_PRESENT, NOT_APPLICABLE.
 
-### Codex Orchestration
-
-- **Status:** NOT_ASSESSED
-
-Codex orchestration has not yet been assessed in this repository context.
-No configuration files or execution evidence found in the target repository.
-Assessment pending investigation of the AI-DSS reference baseline.
-
 ### DeepSeek Harness (DSH)
 
-- **Status:** NOT_ASSESSED
+- **Status:** PARTIALLY_VERIFIED
+- **Version:** 0.2.0-rc.2 (release candidate)
+- **Repository:** https://github.com/deepseek-ai/deepseek-harness.git
+- **HEAD:** 639ed015397290b3745d163aafe02ffee4aa3f84 (detached at tag dsh-v0.2.0-rc.2)
+- **DSH_HOME:** C:\Users\HP\.dsh
 
-DSH has not yet been assessed in this repository context.
-No DSH configuration files found in the working directory.
+**Verified:**
+- CLI is installed and functional: `dsh --version` returns 0.2.0-rc.2, `dsh --help` shows usage (exit 0)
+- Dependencies installed: 1,394 packages in node_modules/.pnpm (Node v24.18.0, pnpm 11.7.0)
+- Profiles configured: web, headless, rescue (each with cordis.yml, cordis.patch.yml, package.json)
+- Credential store: .credentials.yaml (1,070 bytes, 10 API key references); DPAPI-encrypted paperclip-session.dpapi
+- Skills configured: 19 skills in .claude/skills/ (hyperresearch), 10 plugin skills in .agents/skills/, skills-lock.json (10 skills tracked)
+- Agent presets: ai-dss-setup-read-only and ai-dss-technology-read-only configured in web profile
+- AGENTS.md verified: Repository structure, application-launch rule, and documentation standard all present
+- verify-application-entrypoints.ts: PASS (dsh is the only supported Node application launcher)
+- Hygiene gate partial: application entrypoints, default product isolation, package licenses, package invariants all PASS
+
+**Failed/Unverified:**
+- rescope-vendor:check FAILS (3 files carry pre-rescope name tokens: @deepseek-ai/cordis in inspect-registry.spec.ts and 2 client-fixture.mjs files)
+- dsh --profile web --dump-config produces empty output (should show composed config tree)
+- dsh --profile headless --dump-default-config fails with module loading error (node:internal/modules/cjs/loader:1520)
+- Lint, typecheck, tests: NOT RUN (require build:lib:host prerequisite; && not available in current PowerShell)
+- DEEPSEEK_API_KEY not set in environment variables (stored in .credentials.yaml only)
+- Smoke test: NOT TESTED (requires API key and running profile)
+
+**Working tree state:** Detached HEAD at v0.2.0-rc.2; 3 changes: deleted .claude/skills symlink, modified CLAUDE.md (181 insertions), untracked files (.agents/skills/*, .claude/agents/, .hyperresearch/, skills-lock.json)
+
+**Full audit:** See DEEPSEEK_HARNESS_SETUP_AUDIT.md
+
+### Codex Orchestration
+
+- **Status:** CONFIGURED_UNVERIFIED
+- Codex is configured as the sole control plane in the web profile (dsh-codex-taskboard integration)
+- Agent presets are explicitly read-only/research-only (no coding, installs, database writes, approvals, technology selection, or delegation)
+- AGENTS.md "Application launch" rule enforces: only dsh profiles launch Node apps
+- No competing orchestrators (Paperclip, OpenHands, Agent Orchestrator) detected
 
 ### Loop Engineering
 
-- **Status:** NOT_ASSESSED
-
-Loop Engineering patterns have not yet been assessed.
+- **Status:** CONFIGURED_UNVERIFIED
+- Referenced in AGENTS.md and agent preset personas
+- .agents/notes/ contains Loop Engineering documentation
+- Not yet verified through execution
 
 ### Agent Skills and Tool Integrations
 
-- **Status:** NOT_ASSESSED
-
-Agent skills inventory not yet established for this project.
+- **Status:** PARTIALLY_VERIFIED
+- HyperResearch integration: 19 skills in .claude/skills/ (18 hypersearch step skills + 1 entry skill), 16 agent definitions in .claude/agents/
+- CLI-Anything: NOT_INSTALLED (not present in repository or skill inventory)
+- Browser automation: Chrome DevTools MCP configured in web profile (optional, headless mode)
+- MCP integration: Available via @deepseek-ai/dsh-mcp package
+- Subagent tools: tool-subagent, tool-subagent-fork, tool-subagent-control, tool-subagent-list-agents all enabled
 
 ### Task Tracking and Evidence Management
 
-- **Status:** NOT_PRESENT
-
-No task tracking or evidence management system configured. This is a gap.
+- **Status:** CONFIGURED_UNVERIFIED
+- dsh-codex-taskboard linked in web profile (path: C:\Users\HP\OneDrive\Desktop\dashi-taskboard\integrations\deepseek-harness)
+- Path exists but integration not verified through execution
 
 ### Model Providers and API Compatibility
 
-- **Status:** UNKNOWN
-
-Model provider compatibility matrix not yet established.
+- **Status:** PARTIALLY_VERIFIED
+- LLM provider configured: laguna (poolside/laguna-s-2.1) as default model in web profile
+- Additional providers in settings: inceptionlabs, deepseek-v4-flash, freebuff
+- Credential store: .credentials.yaml contains references for DEEPSEEK_API_KEY, DEEPSEEK_V4_FLASH_API_KEY, OPENCODE_API_KEY, UNOROUTER_API_KEY, NAVY_API_KEY, NARA_API_KEY, XKIRO_API_KEY, APMIX_API_KEY, INCEPTIONLABS_API_KEY, ZENMUX_API_KEY, ATRIA_API_KEY, LAGUNA_API_KEY, FREEBUFF_API_KEY
+- DEEPSEEK_API_KEY NOT set as environment variable (stored in credential store only)
 
 ### Security Checks, Testing, and Recovery
 
-- **Status:** NOT_PRESENT
+- **Status:** PARTIALLY_VERIFIED
+- packages/sandbox exists (@deepseek-ai/dsh-sandbox for process confinement)
+- DEEPSEEK_API_KEY stored encrypted via Windows DPAPI (paperclip-session.dpapi)
+- CLAUDE.md hooks redirect WebSearch/WebFetch to hyperresearch (preventing untracked web access)
+- Failure recovery: docs/architecture.md and .agents/notes/ contain recovery documentation
+- Hygiene gate: 4 of 5 checks PASS, 1 FAIL (rescope-vendor:check)
 
-No security checks, testing, or recovery procedures configured. This is a gap.
+## Phase Assessment Results
+
+### Phase 0: Foundation (Documentation)
+- **Status:** COMPLETE
+- All 50 documentation files created, published, and pushed to https://github.com/jed-hyper1/AI-software-factory-.git
+- Commit: 7f6b4b0 (audit report) on top of 5bc8ba1 (STATUS.md/ROADMAP.md updates)
+- 0 broken markdown links verified
+
+### Phase 1: Reference Baseline Assessment
+- **Status:** IN PROGRESS
+- DSH repository inspected and audited against AGENTS.md requirements (68 requirements checked)
+- Codex orchestration assessed through configuration review
+- Loop Engineering assessed through documentation review
+- Agent skills and tool integrations catalogued
+- DSH setup audit report produced: DEEPSEEK_HARNESS_SETUP_AUDIT.md
+- Remaining work: Execute lint, typecheck, tests, doc-sync; fix hygiene failures; run smoke test
 
 ## Unresolved Decisions
 
 - LICENSE selection: PENDING owner approval.
-- 20-skill restriction: PROPOSED to NOT inherit from existing setup;
-  separate capability governance policy to be proposed for owner review.
+- 20-skill restriction: PROPOSED to NOT inherit from existing setup; separate capability governance policy for owner review.
 - Capability governance model for new project: PENDING.
+- Hygiene failure (rescope-vendor:check): 3 files need import path updates. Owner approval needed for changes to DSH repository.
+- Detached HEAD at dsh-v0.2.0-rc.2 tag: Owner decision needed (checkout master vs stay on tag).
+- CLAUDE.md modifications (181 insertions): Owner review needed (commit, revert, or modify).
+- DEEPSEEK_API_KEY configuration: Owner approval needed for API usage (cost).
 
 ## Documentation Completion
 
 - [x] All 50 documentation files created and published.
 - [x] Internal links validated (0 broken markdown links).
 - [x] Cross-references fixed with correct relative paths.
-- [x] No secrets, credentials, or personal data detected.
-- [x] Committed and pushed to GitHub (commit c42644f).
-- [ ] Phase 1: Reference Baseline Assessment (PENDING).
+- [x] No secrets, credentials, or personal data in documentation repo.
+- [x] Committed and pushed to GitHub.
+- [x] Phase 1: Reference Baseline Assessment (IN PROGRESS - DSH audit complete, remaining checks pending owner decision).
 
 ## Next Actions
 
-1. Begin Phase 1: Reference Baseline Assessment.
-2. Assess existing AI-agent configuration components.
-3. Propose capability governance policy (PENDING owner approval).
+1. Owner decision: Restore .claude/skills symlink (low risk, reversible).
+2. Owner decision: Fix 3 pre-rescope name token files in DSH repo (low risk).
+3. Owner decision: Run build:lib:host and full verification suite (lint, typecheck, tests).
+4. Owner decision: Set DEEPSEEK_API_KEY for smoke testing (API cost).
+5. Phase 1: Complete remaining component assessments (Loop Engineering verification, task tracking verification).
+6. Phase 1: Propose separate capability governance policy for owner review.
