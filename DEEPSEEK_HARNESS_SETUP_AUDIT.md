@@ -181,11 +181,11 @@ Note: Tests, lint, typecheck NOT verified (require build:lib:host prerequisite; 
 | Web profile dump (composed) | dsh --profile web --dump-config | 0 | Empty | Issue: Should show composed config with user layer |
 | Headless profile dump | dsh --profile headless --dump-default-config | 1 | Module loading error | node:internal/modules/cjs/loader:1520 |
 | Application entrypoints | tsx scripts/verify-application-entrypoints.ts | 0 | PASS | dsh is the only supported Node application launcher |
-| Hygiene gate | pnpm run hygiene | 1 | 4 PASS, 1 FAIL | rescope-vendor:check fails |
+| Hygiene gate | pnpm run hygiene | 1 | 17 PASS, 1 FAIL | rescope-vendor FIXED (was FAIL); verify-cordis-config pre-existing failure |
 | Default product isolation | (part of hygiene) | PASS | Isolation verified | 32.79s |
 | DSH package licenses | (part of hygiene) | PASS | Licenses OK | 2.30s |
 | Package invariants | (part of hygiene) | PASS | Invariants OK | 6.27s |
-| Vendor rescope | tsx scripts/rescope-vendor.ts --check | 1 | 3 failures | 3 files reference @deepseek-ai/cordis |
+| Vendor rescope | tsx scripts/rescope-vendor.ts --check | 0 | FIXED | Now PASSES: 'no residue, every exact edit landed, idempotent' |
 | Lint | pnpm run lint | NOT RUN | No output | Requires build:lib:host prerequisite |
 | Type check | pnpm run typecheck | NOT RUN | No output | Requires build:lib:host prerequisite |
 | Tests | pnpm test | NOT RUN | No output | Requires build:native-system prerequisite |
@@ -234,8 +234,9 @@ Note: Tests, lint, typecheck NOT verified (require build:lib:host prerequisite; 
 | 7 | Lint, typecheck, tests NOT verified | MEDIUM | Run with proper shell |
 | 8 | Detached HEAD at tag v0.2.0-rc.2 | LOW | Checkout master if development intended |
 | 9 | Uncommitted untracked files | LOW | Review and commit if appropriate |
+| 10 | verify-md-links FAILS | MEDIUM | 2 broken cross-links in .agents/skills/plugin-upgrade/references/v0.1.2-alpha.1.md (pre-existing) |
 
-Suspected Problems:
+| 10 | verify-md-links FAILS (2 broken cross-links) | MEDIUM | Pre-existing in .agents/skills/plugin-upgrade/ |\n\nSuspected Problems:
 - AGENTS.md differs from upstream (local has webhook/ entry at line 43)
 - package.json engines says node >=24 but AGENTS.md says ^22.19 || >=24 (both satisfied by v24.18.0)
 

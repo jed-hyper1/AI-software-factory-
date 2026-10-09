@@ -85,7 +85,7 @@ NOT_PRESENT, NOT_APPLICABLE.
 - DEEPSEEK_API_KEY stored encrypted via Windows DPAPI (paperclip-session.dpapi)
 - CLAUDE.md hooks redirect WebSearch/WebFetch to hyperresearch (preventing untracked web access)
 - Failure recovery: docs/architecture.md and .agents/notes/ contain recovery documentation
-- Hygiene gate: 4 of 5 checks PASS, 1 FAIL (rescope-vendor:check)
+- Hygiene gate: 17 of 18 checks PASS, 1 FAIL (verify-cordis-config — pre-existing, ACP test fixture)
 
 ## Phase Assessment Results
 
